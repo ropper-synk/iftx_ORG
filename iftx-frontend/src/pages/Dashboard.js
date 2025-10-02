@@ -13,10 +13,15 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [quantities, setQuantities] = useState({});
+  const [cartLoading, setCartLoading] = useState(false);
+  const [cart, setCart] = useState(null);
+  const [showCartDropdown, setShowCartDropdown] = useState(false);
+  const [cartItemsLoading, setCartItemsLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchUserProfile();
+    fetchCartData();
     // initialize quantities to 1
     const initial = {};
     products.forEach(p => { initial[p.id] = 1; });
@@ -47,6 +52,24 @@ function Dashboard() {
     }
   };
 
+  const fetchCartData = async () => {
+    try {
+      setCartItemsLoading(true);
+      const response = await axios.get('http://localhost:5000/api/cart', {
+        withCredentials: true
+      });
+      
+      if (response.data.success) {
+        setCart(response.data.cart);
+        console.log('Cart data loaded:', response.data.cart);
+      }
+    } catch (error) {
+      console.error('Error fetching cart:', error);
+    } finally {
+      setCartItemsLoading(false);
+    }
+  };
+
   const handleLogout = async () => {
     try {
       await axios.post('http://localhost:5000/api/auth/logout', {}, {
@@ -65,17 +88,81 @@ function Dashboard() {
     setQuantities(prev => ({ ...prev, [id]: Math.max(1, next) }));
   };
 
-  const addToCart = (product) => {
-    const qty = quantities[product.id] || 1;
-    const existing = JSON.parse(localStorage.getItem("cart") || "[]");
-    const idx = existing.findIndex((i) => i.id === product.id);
-    if (idx >= 0) {
-      existing[idx].quantity += qty;
-    } else {
-      existing.push({ ...product, quantity: qty });
+  const addToCart = async (product) => {
+    setCartLoading(true);
+    try {
+      const qty = quantities[product.id] || 1;
+      
+      const cartData = {
+        productId: product.id.toString(),
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        image: product.image,
+        quantity: qty
+      };
+
+      console.log('Adding to cart - Product data:', cartData);
+      console.log('Sending request to:', 'http://localhost:5000/api/cart/add');
+      
+      const response = await axios.post('http://localhost:5000/api/cart/add', cartData, {
+        withCredentials: true
+      });
+
+      console.log('Cart response:', response.data);
+
+      if (response.data.success) {
+        alert(`Added ${qty} ${product.name}(s) to cart!`);
+        // Refresh cart data
+        fetchCartData();
+      } else {
+        alert('Failed to add item to cart');
+      }
+    } catch (error) {
+      console.error('Add to cart error:', error);
+      console.error('Error response:', error.response?.data);
+      if (error.response?.status === 401) {
+        alert('Please login to add items to cart');
+        navigate('/login');
+      } else {
+        alert('Failed to add item to cart: ' + (error.response?.data?.message || error.message));
+      }
+    } finally {
+      setCartLoading(false);
     }
-    localStorage.setItem("cart", JSON.stringify(existing));
-    alert("Added to cart");
+  };
+
+  const removeFromCart = async (productId) => {
+    try {
+      const response = await axios.delete(`http://localhost:5000/api/cart/remove/${productId}`, {
+        withCredentials: true
+      });
+      
+      if (response.data.success) {
+        alert('Item removed from cart');
+        fetchCartData();
+      }
+    } catch (error) {
+      console.error('Remove from cart error:', error);
+      alert('Failed to remove item from cart');
+    }
+  };
+
+  const updateCartQuantity = async (productId, newQuantity) => {
+    try {
+      const response = await axios.put(`http://localhost:5000/api/cart/update/${productId}`, {
+        quantity: newQuantity
+      }, {
+        withCredentials: true
+      });
+      
+      if (response.data.success) {
+        fetchCartData();
+      }
+    } catch (error) {
+      console.error('Update cart error:', error);
+      alert('Failed to update cart');
+    }
   };
 
   if (loading) {
@@ -121,18 +208,132 @@ function Dashboard() {
               </div>
               <h1 className="text-2xl font-bold text-gray-900">IFTX Dashboard</h1>
             </div>
-            <button
-              onClick={handleLogout}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200 flex items-center"
-            >
-              <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-              Logout
-            </button>
+            
+            <div className="flex items-center space-x-4">
+              {/* Cart Icon with Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowCartDropdown(!showCartDropdown)}
+                  className="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none"
+                >
+                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
+                  </svg>
+                  {cart && cart.totalItems > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {cart.totalItems}
+                    </span>
+                  )}
+                </button>
+
+                {/* Cart Dropdown */}
+                {showCartDropdown && (
+                  <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
+                    <div className="p-4 border-b border-gray-200">
+                      <h3 className="text-lg font-semibold text-gray-900">Shopping Cart</h3>
+                      {cart && (
+                        <p className="text-sm text-gray-600">
+                          {cart.totalItems} items • ${cart.totalAmount?.toFixed(2)}
+                        </p>
+                      )}
+                    </div>
+                    
+                    <div className="max-h-96 overflow-y-auto">
+                      {cartItemsLoading ? (
+                        <div className="p-4 text-center">
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                          <p className="text-gray-600 mt-2">Loading cart...</p>
+                        </div>
+                      ) : cart && cart.items && cart.items.length > 0 ? (
+                        <div className="divide-y divide-gray-200">
+                          {cart.items.map((item) => (
+                            <div key={item.productId} className="p-4 flex items-center space-x-3">
+                              <img 
+                                src={item.image} 
+                                alt={item.name} 
+                                className="h-12 w-12 object-cover rounded"
+                              />
+                              <div className="flex-1 min-w-0">
+                                <h4 className="text-sm font-medium text-gray-900 truncate">
+                                  {item.name}
+                                </h4>
+                                <p className="text-sm text-gray-500">${item.price}</p>
+                                <div className="flex items-center space-x-2 mt-1">
+                                  <button
+                                    onClick={() => updateCartQuantity(item.productId, Math.max(1, item.quantity - 1))}
+                                    className="text-gray-400 hover:text-gray-600"
+                                  >
+                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
+                                    </svg>
+                                  </button>
+                                  <span className="text-sm font-medium">{item.quantity}</span>
+                                  <button
+                                    onClick={() => updateCartQuantity(item.productId, item.quantity + 1)}
+                                    className="text-gray-400 hover:text-gray-600"
+                                  >
+                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-sm font-medium text-gray-900">
+                                  ${(item.price * item.quantity).toFixed(2)}
+                                </p>
+                                <button
+                                  onClick={() => removeFromCart(item.productId)}
+                                  className="text-red-500 hover:text-red-700 text-sm mt-1"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="p-8 text-center">
+                          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5M7 13l2.5 5m6-5v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
+                          </svg>
+                          <p className="text-gray-500 mt-2">Your cart is empty</p>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {cart && cart.items && cart.items.length > 0 && (
+                      <div className="p-4 border-t border-gray-200">
+                        <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 font-medium">
+                          Checkout (${cart.totalAmount?.toFixed(2)})
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={handleLogout}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors duration-200 flex items-center"
+              >
+                <svg className="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </header>
+
+      {/* Click outside to close cart dropdown */}
+      {showCartDropdown && (
+        <div 
+          className="fixed inset-0 z-40" 
+          onClick={() => setShowCartDropdown(false)}
+        ></div>
+      )}
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -208,13 +409,15 @@ function Dashboard() {
                 <div className="mt-4 flex gap-2">
                   <button
                     onClick={() => addToCart(p)}
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    disabled={cartLoading}
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                   >
-                    Add to Cart
+                    {cartLoading ? 'Adding...' : 'Add to Cart'}
                   </button>
                   <button
                     onClick={() => { addToCart(p); navigate(`/product/${p.id}`); }}
-                    className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                    disabled={cartLoading}
+                    className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
                   >
                     Buy Now
                   </button>

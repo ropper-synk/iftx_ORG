@@ -6,6 +6,7 @@ const path = require('path');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
+const cartRoutes = require('./routes/cart');
 const { requireAuth } = require('./middleware/auth');
 
 const app = express();
@@ -43,6 +44,7 @@ mongoose.connect('mongodb://localhost:27017/iftx', {
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/cart', cartRoutes);
 
 // Protected route example
 app.get('/api/profile', requireAuth, (req, res) => {
@@ -50,6 +52,29 @@ app.get('/api/profile', requireAuth, (req, res) => {
     message: 'This is a protected route',
     user: req.session.user
   });
+});
+
+// Database test route
+app.get('/api/test/db', async (req, res) => {
+  try {
+    const collections = await mongoose.connection.db.listCollections().toArray();
+    const collectionNames = collections.map(col => col.name);
+    
+    res.json({
+      success: true,
+      message: 'Database connection working',
+      database: mongoose.connection.name,
+      collections: collectionNames,
+      connectionState: mongoose.connection.readyState
+    });
+  } catch (error) {
+    console.error('Database test error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Database test failed',
+      error: error.message
+    });
+  }
 });
 
 // Health check

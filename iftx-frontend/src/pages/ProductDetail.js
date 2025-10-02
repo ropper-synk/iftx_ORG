@@ -9,6 +9,7 @@ function ProductDetail() {
   const [error, setError] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [product, setProduct] = useState(null);
+  const [cartLoading, setCartLoading] = useState(false);
 
   useEffect(() => {
     const init = async () => {
@@ -38,17 +39,38 @@ function ProductDetail() {
     init();
   }, [id, navigate]);
 
-  const addToCart = () => {
+  const addToCart = async () => {
     if (!product) return;
-    const existing = JSON.parse(localStorage.getItem("cart") || "[]");
-    const idx = existing.findIndex((i) => i.id === product.id);
-    if (idx >= 0) {
-      existing[idx].quantity += quantity;
-    } else {
-      existing.push({ ...product, quantity });
+    
+    setCartLoading(true);
+    try {
+      const response = await axios.post('http://localhost:5000/api/cart/add', {
+        productId: product.id.toString(),
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        image: product.image,
+        quantity: quantity
+      }, {
+        withCredentials: true
+      });
+
+      if (response.data.success) {
+        alert(`Added ${quantity} ${product.name}(s) to cart!`);
+      } else {
+        alert('Failed to add item to cart');
+      }
+    } catch (error) {
+      console.error('Add to cart error:', error);
+      if (error.response?.status === 401) {
+        alert('Please login to add items to cart');
+        navigate('/login');
+      } else {
+        alert('Failed to add item to cart');
+      }
+    } finally {
+      setCartLoading(false);
     }
-    localStorage.setItem("cart", JSON.stringify(existing));
-    alert("Added to cart");
   };
 
   if (loading) {
@@ -107,13 +129,15 @@ function ProductDetail() {
         <div className="flex gap-3">
           <button
             onClick={addToCart}
-            className="bg-blue-600 text-white px-5 py-3 rounded hover:bg-blue-700"
+            disabled={cartLoading}
+            className="bg-blue-600 text-white px-5 py-3 rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            Add to Cart
+            {cartLoading ? 'Adding...' : 'Add to Cart'}
           </button>
           <button
             onClick={() => { addToCart(); navigate("/dashboard"); }}
-            className="bg-green-600 text-white px-5 py-3 rounded hover:bg-green-700"
+            disabled={cartLoading}
+            className="bg-green-600 text-white px-5 py-3 rounded hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
             Buy Now
           </button>
