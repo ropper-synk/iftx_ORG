@@ -5,6 +5,7 @@ import Home from "./pages/Home.js";
 import Login from "./pages/Login.js";
 import Signup from "./pages/Signup.js";
 import Dashboard from "./pages/Dashboard.js";
+import AdminDashboard from "./pages/AdminDashboard.js";
 import Navbar from "./components/Navbar.js";
 import Footer from "./components/Footer.js";
 
@@ -17,6 +18,9 @@ function App() {
 
         {/* Dashboard page without Navbar/Footer (full-screen dashboard) */}
         <Route path="/dashboard" element={<Dashboard />} />
+        
+        {/* Admin Dashboard page without Navbar/Footer (full-screen admin panel) */}
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
         {/* All other pages with Navbar/Footer */}
         <Route

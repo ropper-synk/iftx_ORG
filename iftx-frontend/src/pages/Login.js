@@ -10,6 +10,7 @@ function Login() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [isAdminLogin, setIsAdminLogin] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -48,17 +49,27 @@ function Login() {
     setSuccessMessage("");
     
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', formData, {
+      const loginEndpoint = isAdminLogin 
+        ? 'http://localhost:5000/api/admin/login' 
+        : 'http://localhost:5000/api/auth/login';
+      
+      const response = await axios.post(loginEndpoint, formData, {
         withCredentials: true
       });
       
       if (response.data.success) {
         // Show success message
-        setSuccessMessage(`✅ Successful Login! Welcome back, ${response.data.user.firstName}!`);
+        const userName = response.data.user.firstName || response.data.admin.name;
+        const userType = isAdminLogin ? 'Admin' : 'User';
+        setSuccessMessage(`✅ Successful ${userType} Login! Welcome back, ${userName}!`);
         
-        // Redirect to dashboard after 2 seconds
+        // Redirect based on user type
         setTimeout(() => {
-          window.location.href = '/dashboard';
+          if (isAdminLogin) {
+            window.location.href = '/admin/dashboard';
+          } else {
+            window.location.href = '/dashboard';
+          }
         }, 2000);
       }
     } catch (error) {
@@ -78,12 +89,58 @@ function Login() {
         {/* Header Section */}
         <div className="text-center">
           <div className="mx-auto h-16 w-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mb-4">
-            <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
+            {isAdminLogin ? (
+              <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            ) : (
+              <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            )}
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Welcome</h1>
-          <p className="text-lg text-gray-600">Sign in to your account to continue</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            {isAdminLogin ? 'Admin Panel' : 'Welcome'}
+          </h1>
+          <p className="text-lg text-gray-600">
+            {isAdminLogin ? 'Sign in to admin dashboard' : 'Sign in to your account to continue'}
+          </p>
+        </div>
+
+        {/* Login Type Toggle */}
+        <div className="flex justify-center">
+          <div className="bg-gray-100 p-1 rounded-lg flex">
+            <button
+              type="button"
+              onClick={() => setIsAdminLogin(false)}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                !isAdminLogin
+                  ? 'bg-white text-blue-600 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              User Login
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsAdminLogin(true)}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                isAdminLogin
+                  ? 'bg-white text-purple-600 shadow-sm'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <svg className="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Admin Login
+            </button>
+          </div>
         </div>
 
         {/* Success Message */}
@@ -100,7 +157,7 @@ function Login() {
         )}
 
         {/* Login Form */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+        <div className={`bg-white rounded-2xl shadow-xl p-8 border ${isAdminLogin ? 'border-purple-100' : 'border-gray-100'}`}>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
             <div>
@@ -118,12 +175,14 @@ function Login() {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`block w-full pl-10 pr-3 py-4 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
+                  className={`block w-full pl-10 pr-3 py-4 border rounded-xl focus:ring-2 focus:border-transparent transition-all duration-200 ${
                     errors.email 
                       ? 'border-red-300 bg-red-50' 
-                      : 'border-gray-300 hover:border-gray-400 focus:bg-white'
+                      : `border-gray-300 hover:border-gray-400 focus:bg-white ${
+                          isAdminLogin ? 'focus:ring-purple-500' : 'focus:ring-blue-500'
+                        }`
                   }`}
-                  placeholder="Enter your email address"
+                  placeholder={isAdminLogin ? "Enter admin email" : "Enter your email address"}
           required
         />
               </div>
@@ -153,12 +212,14 @@ function Login() {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className={`block w-full pl-10 pr-12 py-4 border rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 ${
+                  className={`block w-full pl-10 pr-12 py-4 border rounded-xl focus:ring-2 focus:border-transparent transition-all duration-200 ${
                     errors.password 
                       ? 'border-red-300 bg-red-50' 
-                      : 'border-gray-300 hover:border-gray-400 focus:bg-white'
+                      : `border-gray-300 hover:border-gray-400 focus:bg-white ${
+                          isAdminLogin ? 'focus:ring-purple-500' : 'focus:ring-blue-500'
+                        }`
                   }`}
-                  placeholder="Enter your password"
+                  placeholder={isAdminLogin ? "Enter admin password" : "Enter your password"}
           required
         />
                 <button
@@ -195,7 +256,9 @@ function Login() {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className={`h-4 w-4 border-gray-300 rounded ${
+                    isAdminLogin ? 'text-purple-600 focus:ring-purple-500' : 'text-blue-600 focus:ring-blue-500'
+                  }`}
                 />
                 <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 font-medium">
                   Remember me
@@ -203,7 +266,9 @@ function Login() {
               </div>
               
               <div className="text-sm">
-                <a href="#" className="font-semibold text-blue-600 hover:text-blue-500 transition-colors duration-200">
+                <a href="#" className={`font-semibold transition-colors duration-200 ${
+                  isAdminLogin ? 'text-purple-600 hover:text-purple-500' : 'text-blue-600 hover:text-blue-500'
+                }`}>
                   Forgot password?
                 </a>
               </div>
@@ -213,7 +278,11 @@ function Login() {
             <button 
               type="submit" 
               disabled={isLoading || successMessage}
-              className="group relative w-full flex justify-center py-4 px-4 border border-transparent text-lg font-semibold rounded-xl text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:from-gray-400 disabled:to-gray-500 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 hover:shadow-lg"
+              className={`group relative w-full flex justify-center py-4 px-4 border border-transparent text-lg font-semibold rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 hover:shadow-lg ${
+                isAdminLogin
+                  ? 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 focus:ring-purple-500 disabled:from-gray-400 disabled:to-gray-500'
+                  : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:ring-blue-500 disabled:from-gray-400 disabled:to-gray-500'
+              }`}
             >
               {isLoading ? (
                 <span className="flex items-center">
@@ -235,7 +304,7 @@ function Login() {
                   <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                   </svg>
-                  Sign In
+                  {isAdminLogin ? 'Admin Sign In' : 'Sign In'}
                 </span>
               )}
         </button>
@@ -275,14 +344,16 @@ function Login() {
         </div>
 
         {/* Sign Up Link */}
-        <div className="text-center">
-          <p className="text-gray-600">
-            Don't have an account?{' '}
-            <a href="/signup" className="font-semibold text-blue-600 hover:text-blue-500 transition-colors duration-200">
-              Sign up for free
-            </a>
-          </p>
-        </div>
+        {!isAdminLogin && (
+          <div className="text-center">
+            <p className="text-gray-600">
+              Don't have an account?{' '}
+              <a href="/signup" className="font-semibold text-blue-600 hover:text-blue-500 transition-colors duration-200">
+                Sign up for free
+              </a>
+            </p>
+          </div>
+        )}
 
         {/* Footer */}
         <div className="text-center text-sm text-gray-500">

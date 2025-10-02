@@ -1,13 +1,36 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import ProductCard from "../components/ProductCard.js";
+import axios from "axios";
 
-const products = [
+function Home() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/products?limit=6');
+      if (response.data.success) {
+        setProducts(response.data.products);
+      }
+    } catch (error) {
+      console.error('Failed to fetch products:', error);
+      setError('Failed to load products');
+      // Fallback to sample data if API fails
+      setProducts([
   { id: 1, name: "Solar Panel A", description: "High efficiency panel with advanced technology for maximum energy output", price: 120, image: "/assets/solar1.jpg" },
   { id: 2, name: "Solar Panel B", description: "Budget friendly option perfect for residential installations", price: 90, image: "/assets/solar2.jpg" },
   { id: 3, name: "Solar Panel C", description: "Premium quality panel with extended warranty and superior performance", price: 200, image: "/assets/solar3.jpg" },
-];
+      ]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header Section */}
@@ -53,13 +76,24 @@ function Home() {
           <p className="text-lg text-gray-600 animate-slide-up max-w-2xl mx-auto">
             Choose from our carefully selected range of solar panels, each designed to meet different needs and budgets
           </p>
+          {error && (
+            <div className="mt-4 text-amber-600 bg-amber-100 border border-amber-300 rounded-lg p-3 max-w-md mx-auto">
+              ⚠️ {error} - Showing sample products
+            </div>
+          )}
         </div>
         
+        {loading ? (
+          <div className="flex justify-center items-center min-h-[200px]">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
           {products.map((product, index) => (
-            <ProductCard key={product.id} product={product} index={index} />
+              <ProductCard key={product._id || product.id} product={product} index={index} />
           ))}
         </div>
+        )}
         
         {/* Call to Action Section */}
         <div className="mt-20 text-center">

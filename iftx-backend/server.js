@@ -7,6 +7,8 @@ require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
 const cartRoutes = require('./routes/cart');
+const { router: adminRoutes } = require('./routes/admin');
+const productRoutes = require('./routes/products');
 const { requireAuth } = require('./middleware/auth');
 
 const app = express();
@@ -45,6 +47,8 @@ mongoose.connect('mongodb://localhost:27017/iftx', {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/products', productRoutes);
 
 // Protected route example
 app.get('/api/profile', requireAuth, (req, res) => {
