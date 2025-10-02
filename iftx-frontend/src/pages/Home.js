@@ -86,6 +86,170 @@ function Home() {
           </div>
         </div>
       </div>
+
+      {/* Founders Section */}
+      <div className="bg-gray-50 py-20">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-800 mb-4">
+              Meet Our Founders
+            </h2>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              The visionary leaders behind IFTX who are dedicated to revolutionizing the solar energy industry 
+              and creating a sustainable future for generations to come.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+            {/* Founder 1 */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 text-center hover:shadow-2xl transition-all duration-300 hover:scale-105">
+              <div className="relative mb-6">
+                <div className="w-48 h-48 mx-auto rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center overflow-hidden shadow-lg">
+                  {/* Placeholder for founder image */}
+                  <img 
+                    src="/assets/founder1.jpg" 
+                    alt="Dr. Rajesh Kumar - Co-Founder & CEO" 
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                  <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-6xl font-bold">
+                    RK
+                  </div>
+                </div>
+                <div className="absolute -bottom-2 -right-2 bg-blue-600 text-white p-2 rounded-full">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                </div>
+              </div>
+              
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">Dr. Rajesh Kumar</h3>
+              <p className="text-blue-600 font-semibold mb-4">Co-Founder & CEO</p>
+              
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                With over 15 years of experience in renewable energy, Dr. Kumar holds a Ph.D. in Solar Engineering from IIT Delhi. 
+                He has led multiple breakthrough innovations in photovoltaic technology and is passionate about making clean energy accessible to all.
+              </p>
+              
+              <div className="flex justify-center space-x-4 mb-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">15+</div>
+                  <div className="text-sm text-gray-500">Years Experience</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">50+</div>
+                  <div className="text-sm text-gray-500">Patents</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">100+</div>
+                  <div className="text-sm text-gray-500">Projects</div>
+                </div>
+              </div>
+              
+              <div className="flex justify-center space-x-3">
+                <button className="p-2 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition-colors">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                  </svg>
+                </button>
+                <button className="p-2 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition-colors">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                  </svg>
+                </button>
+                <button className="p-2 bg-blue-100 text-blue-600 rounded-full hover:bg-blue-200 transition-colors">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.758-1.378l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.624 0 11.99-5.367 11.99-11.987C24.007 5.367 18.641.001 12.017.001z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Founder 2 */}
+            <div className="bg-white rounded-2xl shadow-xl p-8 text-center hover:shadow-2xl transition-all duration-300 hover:scale-105">
+              <div className="relative mb-6">
+                <div className="w-48 h-48 mx-auto rounded-full bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center overflow-hidden shadow-lg">
+                  {/* Placeholder for founder image */}
+                  <img 
+                    src="/assets/founder2.jpg" 
+                    alt="Ms. Priya Sharma - Co-Founder & CTO" 
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                  <div className="w-full h-full bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white text-6xl font-bold">
+                    PS
+                  </div>
+                </div>
+                <div className="absolute -bottom-2 -right-2 bg-purple-600 text-white p-2 rounded-full">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+              </div>
+              
+              <h3 className="text-2xl font-bold text-gray-800 mb-2">Ms. Priya Sharma</h3>
+              <p className="text-purple-600 font-semibold mb-4">Co-Founder & CTO</p>
+              
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                A technology visionary with M.Tech in Electrical Engineering from IIT Bombay, Ms. Sharma specializes in 
+                smart grid integration and IoT solutions for solar systems. She has been instrumental in developing 
+                cutting-edge monitoring and optimization technologies.
+              </p>
+              
+              <div className="flex justify-center space-x-4 mb-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600">12+</div>
+                  <div className="text-sm text-gray-500">Years Experience</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600">25+</div>
+                  <div className="text-sm text-gray-500">Innovations</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600">5+</div>
+                  <div className="text-sm text-gray-500">Awards</div>
+                </div>
+              </div>
+              
+              <div className="flex justify-center space-x-3">
+                <button className="p-2 bg-purple-100 text-purple-600 rounded-full hover:bg-purple-200 transition-colors">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                  </svg>
+                </button>
+                <button className="p-2 bg-purple-100 text-purple-600 rounded-full hover:bg-purple-200 transition-colors">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                  </svg>
+                </button>
+                <button className="p-2 bg-purple-100 text-purple-600 rounded-full hover:bg-purple-200 transition-colors">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.758-1.378l-.749 2.848c-.269 1.045-1.004 2.352-1.498 3.146 1.123.345 2.306.535 3.55.535 6.624 0 11.99-5.367 11.99-11.987C24.007 5.367 18.641.001 12.017.001z"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          {/* Company Mission Statement */}
+          <div className="mt-16 text-center">
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl p-8 text-white mx-auto max-w-4xl">
+              <h3 className="text-2xl font-bold mb-4">Our Mission</h3>
+              <p className="text-lg text-blue-100 leading-relaxed">
+                "To democratize clean energy by making high-quality solar solutions accessible, affordable, and efficient for everyone. 
+                We believe in a future powered by renewable energy, and we're committed to making that vision a reality through 
+                innovation, excellence, and unwavering dedication to our customers and the planet."
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
