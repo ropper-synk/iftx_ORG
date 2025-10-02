@@ -1,13 +1,26 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+const products = [
+  { id: 1, name: "Solar Panel A", description: "High efficiency", price: 120, image: "/assets/solar1.jpg" },
+  { id: 2, name: "Solar Panel B", description: "Budget friendly", price: 90, image: "/assets/solar2.jpg" },
+  { id: 3, name: "Solar Panel C", description: "Premium quality", price: 200, image: "/assets/solar3.jpg" },
+];
 
 function Dashboard() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [quantities, setQuantities] = useState({});
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchUserProfile();
+    // initialize quantities to 1
+    const initial = {};
+    products.forEach(p => { initial[p.id] = 1; });
+    setQuantities(initial);
   }, []);
 
   const fetchUserProfile = async () => {
@@ -46,6 +59,23 @@ function Dashboard() {
       // Still redirect even if logout fails
       window.location.href = '/login';
     }
+  };
+
+  const setQty = (id, next) => {
+    setQuantities(prev => ({ ...prev, [id]: Math.max(1, next) }));
+  };
+
+  const addToCart = (product) => {
+    const qty = quantities[product.id] || 1;
+    const existing = JSON.parse(localStorage.getItem("cart") || "[]");
+    const idx = existing.findIndex((i) => i.id === product.id);
+    if (idx >= 0) {
+      existing[idx].quantity += qty;
+    } else {
+      existing.push({ ...product, quantity: qty });
+    }
+    localStorage.setItem("cart", JSON.stringify(existing));
+    alert("Added to cart");
   };
 
   if (loading) {
@@ -129,8 +159,73 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* User Information Cards */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Product Details Section with Cart Controls */}
+        <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-2xl font-semibold text-gray-900">Products</h3>
+            <button
+              onClick={() => navigate('/home')}
+              className="text-blue-600 hover:text-blue-700 font-medium"
+            >
+              View all
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {products.map(p => (
+              <div key={p.id} className="border rounded-lg p-4 shadow hover:shadow-lg transition bg-white">
+                <img src={p.image} alt={p.name} className="w-full h-40 object-cover mb-2 rounded" />
+                <h4 className="font-bold text-lg">{p.name}</h4>
+                <p className="text-gray-600">{p.description}</p>
+                <div className="font-semibold mt-1">${p.price}</div>
+
+                <div className="mt-3 flex items-center gap-3">
+                  <span className="text-sm text-gray-700">Qty</span>
+                  <div className="flex items-center border rounded">
+                    <button
+                      type="button"
+                      onClick={() => setQty(p.id, (quantities[p.id] || 1) - 1)}
+                      className="px-3 py-1.5 hover:bg-gray-100"
+                    >
+                      −
+                    </button>
+                    <input
+                      type="number"
+                      min="1"
+                      value={quantities[p.id] || 1}
+                      onChange={(e) => setQty(p.id, parseInt(e.target.value || '1', 10))}
+                      className="w-14 text-center outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setQty(p.id, (quantities[p.id] || 1) + 1)}
+                      className="px-3 py-1.5 hover:bg-gray-100"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-4 flex gap-2">
+                  <button
+                    onClick={() => addToCart(p)}
+                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                  >
+                    Add to Cart
+                  </button>
+                  <button
+                    onClick={() => { addToCart(p); navigate(`/product/${p.id}`); }}
+                    className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                  >
+                    Buy Now
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Existing Info Cards */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
           {/* Personal Information */}
           <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
             <div className="flex items-center mb-6">
@@ -198,74 +293,49 @@ function Dashboard() {
               )}
             </div>
           </div>
-
-          {/* Address Information */}
-          <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 lg:col-span-2">
-            <div className="flex items-center mb-6">
-              <div className="h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
-                <svg className="h-5 w-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900">Address Information</h3>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">Street:</span>
-                  <span className="text-gray-900 font-semibold">{user.address.street}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">City:</span>
-                  <span className="text-gray-900 font-semibold">{user.address.city}</span>
-                </div>
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-gray-600 font-medium">State:</span>
-                  <span className="text-gray-900 font-semibold">{user.address.state}</span>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">Zip Code:</span>
-                  <span className="text-gray-900 font-semibold">{user.address.zipCode}</span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-100">
-                  <span className="text-gray-600 font-medium">Country:</span>
-                  <span className="text-gray-900 font-semibold">{user.address.country}</span>
-                </div>
-                <div className="flex justify-between items-center py-2">
-                  <span className="text-gray-600 font-medium">Member Since:</span>
-                  <span className="text-gray-900 font-semibold">
-                    {new Date(user.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
-        {/* Account Statistics */}
-        <div className="mt-8 bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-          <h3 className="text-xl font-semibold text-gray-900 mb-6">Account Statistics</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <div className="text-2xl font-bold text-blue-600">
-                {Math.floor((new Date() - new Date(user.createdAt)) / (1000 * 60 * 60 * 24))}
-              </div>
-              <div className="text-sm text-gray-600">Days as Member</div>
+        {/* Address Information */}
+        <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100 lg:col-span-2 mt-8">
+          <div className="flex items-center mb-6">
+            <div className="h-10 w-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+              <svg className="h-5 w-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
             </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <div className="text-2xl font-bold text-green-600">
-                {user.isActive ? 'Active' : 'Inactive'}
+            <h3 className="text-xl font-semibold text-gray-900">Address Information</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                <span className="text-gray-600 font-medium">Street:</span>
+                <span className="text-gray-900 font-semibold">{user.address.street}</span>
               </div>
-              <div className="text-sm text-gray-600">Account Status</div>
+              <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                <span className="text-gray-600 font-medium">City:</span>
+                <span className="text-gray-900 font-semibold">{user.address.city}</span>
+              </div>
+              <div className="flex justify-between items-center py-2">
+                <span className="text-gray-600 font-medium">State:</span>
+                <span className="text-gray-900 font-semibold">{user.address.state}</span>
+              </div>
             </div>
-            <div className="text-center p-4 bg-purple-50 rounded-lg">
-              <div className="text-2xl font-bold text-purple-600">
-                {user.isEmailVerified ? 'Verified' : 'Pending'}
+            <div className="space-y-4">
+              <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                <span className="text-gray-600 font-medium">Zip Code:</span>
+                <span className="text-gray-900 font-semibold">{user.address.zipCode}</span>
               </div>
-              <div className="text-sm text-gray-600">Email Status</div>
+              <div className="flex justify-between items-center py-2 border-b border-gray-100">
+                <span className="text-gray-600 font-medium">Country:</span>
+                <span className="text-gray-900 font-semibold">{user.address.country}</span>
+              </div>
+              <div className="flex justify-between items-center py-2">
+                <span className="text-gray-600 font-medium">Member Since:</span>
+                <span className="text-gray-900 font-semibold">
+                  {new Date(user.createdAt).toLocaleDateString()}
+                </span>
+              </div>
             </div>
           </div>
         </div>
